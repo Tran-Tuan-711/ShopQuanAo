@@ -1,0 +1,9 @@
+# Visual Studio / .NET files to ignore
+
+# VS Solution and Project temporary files
+[Bb]in/
+[Oo]bj/
+.vs/
+*.pdb
+*.user
+*.suo

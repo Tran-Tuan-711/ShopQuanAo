@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Reporting.WinForms;
 using BLL;
 using DTO;
 
@@ -25,6 +26,7 @@ namespace ShopQuanAo_DotNet
 
         DTO_HoaDon dto_hd = new DTO_HoaDon();
         DTO_ChiTietHoaDon dto_cthd = new DTO_ChiTietHoaDon();
+        public int MaHDVuaLuu { get; set; }
         public frmHoaDon()
         {
             InitializeComponent();
@@ -35,6 +37,59 @@ namespace ShopQuanAo_DotNet
             this.dgv_HoaDon.SelectionChanged += Dgv_HoaDon_SelectionChanged;
             this.btnThemSP.Click += BtnThemSP_Click;
             this.btn_Xoa.Click += Btn_Xoa_Click;
+            this.btn_XemIn.Click += Btn_XemIn_Click;
+            this.btn_Dong.Click += Btn_Dong_Click;
+        }
+
+        private void Btn_Dong_Click(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show("Bạn có chắc muốn đóng hóa đơn không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                this.Close();
+            }
+        }
+
+        private void Btn_XemIn_Click(object sender, EventArgs e)
+        {
+            dto_cthd.MaHD = Convert.ToInt32(MaHDVuaLuu);
+
+            if (dto_cthd.MaHD == 0)
+            {
+                MessageBox.Show("Vui lòng chọn hoặc nhập Mã Hóa Đơn cần xem!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DataTable dtBaoCao = BLL_CTHD.LoadCTHD_Report(dto_cthd);
+
+            if (dtBaoCao.Rows.Count == 0)
+            {
+                MessageBox.Show("Không tìm thấy dữ liệu cho Mã Hóa Đơn này!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            try
+            {
+                frmReport reportForm = new frmReport();
+
+                Report report = new Report();
+                report.SetDatabaseLogon("sa", "123456", ".", "ShopBanAoKhoac");
+                report.SetDataSource(dtBaoCao);
+                reportForm.CrsReportHoaDon.ReportSource = report;
+
+                decimal TongTien = BLL_CTHD.TinhTongTien(dto_cthd);
+
+                report.SetParameterValue("TongTien", TongTien);
+
+                reportForm.CrsReportHoaDon.DisplayToolbar = false;
+                reportForm.CrsReportHoaDon.DisplayStatusBar = false;
+                reportForm.CrsReportHoaDon.Refresh();
+                // 4. Hiển thị Form
+                reportForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải báo cáo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void Btn_Xoa_Click(object sender, EventArgs e)
@@ -66,18 +121,37 @@ namespace ShopQuanAo_DotNet
                 return;
             }
 
-            int MaSP = int.Parse(txtMaSP.Text);
-            int SoLuong = int.Parse(txtSL.Text);
+            if (!int.TryParse(txtMaSP.Text, out int MaSP) || !int.TryParse(txtSL.Text, out int SoLuongMoi))
+            {
+                MessageBox.Show("Mã sản phẩm hoặc Số lượng không hợp lệ!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             decimal Gia = BLL_SP.LayGiaSP(int.Parse(txtMaSP.Text));
 
-            DataRow newRow = dtCTHD.NewRow();
-            // MaHD để trống (DBNull.Value) vì chưa có ID
-            newRow["MaHD"] = DBNull.Value;
-            newRow["MaSP"] = MaSP;
-            newRow["SoLuong"] = SoLuong;
-            newRow["Gia"] = Gia;
+            DataRow KiemTraTonTaiMaSP = dtCTHD.AsEnumerable()
+                               .FirstOrDefault(row => row.Field<int>("MaSP") == MaSP);
 
-            dtCTHD.Rows.Add(newRow);
+            if (KiemTraTonTaiMaSP != null)
+            {
+                int soLuongHienTai = KiemTraTonTaiMaSP.Field<int>("SoLuong");
+
+                // Cập nhật số lượng mới
+                KiemTraTonTaiMaSP["SoLuong"] = soLuongHienTai + SoLuongMoi;
+            }
+            else
+            {
+                DataRow newRow = dtCTHD.NewRow();
+                // MaHD để trống (DBNull.Value) vì chưa có ID
+                newRow["MaHD"] = DBNull.Value;
+                newRow["MaSP"] = MaSP;
+                newRow["SoLuong"] = SoLuongMoi;
+                newRow["Gia"] = Gia;
+
+                dtCTHD.Rows.Add(newRow);
+
+            }
+
             dgv_HoaDon.DataSource = dtCTHD;
 
             decimal tongTien = dtCTHD.AsEnumerable().Sum(r => r.Field<int>("SoLuong") * r.Field<decimal>("Gia"));
@@ -105,25 +179,6 @@ namespace ShopQuanAo_DotNet
         }
         private void Btn_Luu_Click(object sender, EventArgs e)
         {
-            //dto_hd.NgayLap = DateTime.Now;
-            //dto_hd.MaNV = (int)cbo_NhanVien.SelectedValue;
-            //dto_hd.MaKH = (int)cbo_KhachHang.SelectedValue;
-            //dto_hd.TongTien = decimal.Parse(txtThanhTien.Text);
-
-            //int MaHD = BLL_HD.ThemHoaDon(dto_hd);
-
-            //foreach(DataGridViewRow row in dgv_HoaDon.Rows)
-            //{
-            //    if(row.IsNewRow) continue;
-            //    dto_cthd.MaHD = MaHD;
-            //    dto_cthd.MaSP = (int)row.Cells[1].Value;
-            //    dto_cthd.SoLuong = (int)row.Cells[2].Value;
-            //    dto_cthd.Gia = (decimal)row.Cells[3].Value;
-            //    BLL_CTHD.ThemCTHD(dto_cthd);
-            //}
-
-            //MessageBox.Show("Lưu hóa đơn thành công! Mã HD: " + MaHD, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
             if (cbo_NhanVien.SelectedIndex == -1)
             {
                 MessageBox.Show("Vui lòng chọn nhân viên!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -136,6 +191,8 @@ namespace ShopQuanAo_DotNet
             dto_hd.TongTien = decimal.Parse(txtThanhTien.Text);
 
             int MaHD = BLL_HD.ThemHoaDon(dto_hd);
+
+            MaHDVuaLuu = MaHD;
 
             foreach (DataRow row in dtCTHD.Rows)
             {

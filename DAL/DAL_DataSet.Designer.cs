@@ -5226,7 +5226,7 @@ SELECT MaCTHD, MaHD, MaSP, SoLuong, Gia FROM ChiTietHoaDon WHERE (MaCTHD = @MaCT
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         private void InitCommandCollection() {
-            this._commandCollection = new global::System.Data.SqlClient.SqlCommand[2];
+            this._commandCollection = new global::System.Data.SqlClient.SqlCommand[3];
             this._commandCollection[0] = new global::System.Data.SqlClient.SqlCommand();
             this._commandCollection[0].Connection = this.Connection;
             this._commandCollection[0].CommandText = "SELECT MaCTHD, MaHD, MaSP, SoLuong, Gia \r\nFROM dbo.ChiTietHoaDon\r\nWhere MaHD = @M" +
@@ -5235,9 +5235,16 @@ SELECT MaCTHD, MaHD, MaSP, SoLuong, Gia FROM ChiTietHoaDon WHERE (MaCTHD = @MaCT
             this._commandCollection[0].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@MAHD", global::System.Data.SqlDbType.Int, 4, global::System.Data.ParameterDirection.Input, 0, 0, "MaHD", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._commandCollection[1] = new global::System.Data.SqlClient.SqlCommand();
             this._commandCollection[1].Connection = this.Connection;
-            this._commandCollection[1].CommandText = "SELECT SUM(SoLuong * Gia)\r\nFROM ChiTietHoaDon\r\nWHERE MaHD = @MaHD";
+            this._commandCollection[1].CommandText = "SELECT HD.MaNV, HD.MaHD, HD.MaKH, CTHD.MaSP, SP.TenSP, CTHD.SoLuong, SP.Gia\r\nFROM" +
+                " HoaDon HD \r\nJOIN ChiTietHoaDon CTHD ON HD.MaHD = CTHD.MaHD\r\nJOIN SanPham SP  ON" +
+                " CTHD.MaSP = SP.MaSP\r\nWHERE CTHD.MaHD = @MaHD\r\n";
             this._commandCollection[1].CommandType = global::System.Data.CommandType.Text;
             this._commandCollection[1].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@MaHD", global::System.Data.SqlDbType.Int, 4, global::System.Data.ParameterDirection.Input, 0, 0, "MaHD", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
+            this._commandCollection[2] = new global::System.Data.SqlClient.SqlCommand();
+            this._commandCollection[2].Connection = this.Connection;
+            this._commandCollection[2].CommandText = "SELECT SUM(SoLuong * Gia)\r\nFROM ChiTietHoaDon\r\nWHERE MaHD = @MaHD";
+            this._commandCollection[2].CommandType = global::System.Data.CommandType.Text;
+            this._commandCollection[2].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@MaHD", global::System.Data.SqlDbType.Int, 4, global::System.Data.ParameterDirection.Input, 0, 0, "MaHD", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -5280,7 +5287,7 @@ SELECT MaCTHD, MaHD, MaSP, SoLuong, Gia FROM ChiTietHoaDon WHERE (MaCTHD = @MaCT
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Fill, false)]
-        public virtual int FillBy(DAL_DataSet.ChiTietHoaDonDataTable dataTable, global::System.Nullable<int> MaHD) {
+        public virtual int FillBy1(DAL_DataSet.ChiTietHoaDonDataTable dataTable, global::System.Nullable<int> MaHD) {
             this.Adapter.SelectCommand = this.CommandCollection[1];
             if ((MaHD.HasValue == true)) {
                 this.Adapter.SelectCommand.Parameters[0].Value = ((int)(MaHD.Value));
@@ -5299,7 +5306,7 @@ SELECT MaCTHD, MaHD, MaSP, SoLuong, Gia FROM ChiTietHoaDon WHERE (MaCTHD = @MaCT
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
         [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Select, false)]
-        public virtual DAL_DataSet.ChiTietHoaDonDataTable TinhTong(global::System.Nullable<int> MaHD) {
+        public virtual DAL_DataSet.ChiTietHoaDonDataTable GetDataBy_HD_CTHD_SP(global::System.Nullable<int> MaHD) {
             this.Adapter.SelectCommand = this.CommandCollection[1];
             if ((MaHD.HasValue == true)) {
                 this.Adapter.SelectCommand.Parameters[0].Value = ((int)(MaHD.Value));
@@ -5525,6 +5532,40 @@ SELECT MaCTHD, MaHD, MaSP, SoLuong, Gia FROM ChiTietHoaDon WHERE (MaCTHD = @MaCT
         [global::System.ComponentModel.DataObjectMethodAttribute(global::System.ComponentModel.DataObjectMethodType.Update, true)]
         public virtual int Update(global::System.Nullable<int> MaHD, global::System.Nullable<int> MaSP, global::System.Nullable<int> SoLuong, global::System.Nullable<decimal> Gia, int Original_MaCTHD, global::System.Nullable<int> Original_MaHD, global::System.Nullable<int> Original_MaSP, global::System.Nullable<int> Original_SoLuong, global::System.Nullable<decimal> Original_Gia) {
             return this.Update(MaHD, MaSP, SoLuong, Gia, Original_MaCTHD, Original_MaHD, Original_MaSP, Original_SoLuong, Original_Gia, Original_MaCTHD);
+        }
+        
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+        [global::System.ComponentModel.Design.HelpKeywordAttribute("vs.data.TableAdapter")]
+        public virtual global::System.Nullable<decimal> TinhTong(global::System.Nullable<int> MaHD) {
+            global::System.Data.SqlClient.SqlCommand command = this.CommandCollection[2];
+            if ((MaHD.HasValue == true)) {
+                command.Parameters[0].Value = ((int)(MaHD.Value));
+            }
+            else {
+                command.Parameters[0].Value = global::System.DBNull.Value;
+            }
+            global::System.Data.ConnectionState previousConnectionState = command.Connection.State;
+            if (((command.Connection.State & global::System.Data.ConnectionState.Open) 
+                        != global::System.Data.ConnectionState.Open)) {
+                command.Connection.Open();
+            }
+            object returnValue;
+            try {
+                returnValue = command.ExecuteScalar();
+            }
+            finally {
+                if ((previousConnectionState == global::System.Data.ConnectionState.Closed)) {
+                    command.Connection.Close();
+                }
+            }
+            if (((returnValue == null) 
+                        || (returnValue.GetType() == typeof(global::System.DBNull)))) {
+                return new global::System.Nullable<decimal>();
+            }
+            else {
+                return new global::System.Nullable<decimal>(((decimal)(returnValue)));
+            }
         }
     }
     

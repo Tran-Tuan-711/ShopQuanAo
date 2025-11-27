@@ -33,5 +33,9 @@ namespace BLL
         {
             return dalCTHD.TinhTong(cthd);
         }
+        public DataTable LoadCTHD_Report(DTO_ChiTietHoaDon cthd)
+        {
+            return dalCTHD.GetChiTietHoaDon_Report(cthd);
+        }
     }
 }

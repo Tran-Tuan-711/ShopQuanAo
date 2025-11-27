@@ -23,12 +23,12 @@ namespace DAL
         }
         public Decimal TinhTong(DTO_ChiTietHoaDon cthd)
         {
-            var dt = daCTHD.TinhTong(cthd.MaHD);
+            return Convert.ToDecimal(daCTHD.TinhTong(cthd.MaHD));
 
-            if(dt != null && dt.Rows.Count > 0)
-                return Convert.ToDecimal( dt.Rows[0][0]);
-
-            return 0;
+        }
+        public DataTable GetChiTietHoaDon_Report(DTO_ChiTietHoaDon cthd)
+        {
+            return daCTHD.GetDataBy_HD_CTHD_SP(cthd.MaHD);
         }
     }
 }

@@ -16,14 +16,9 @@ namespace BLL
         {
             return dalHD.GetHoaDon();
         }
-        public bool ThemHoaDon(DTO_HoaDon hd)
+        public int ThemHoaDon(DTO_HoaDon hd)
         {
-            try
-            {
-                dalHD.Them(hd);
-                return true;
-            }
-            catch { return false; }
+            return dalHD.Them(hd);
         }
     }
 }

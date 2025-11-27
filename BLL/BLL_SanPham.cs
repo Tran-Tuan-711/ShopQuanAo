@@ -16,5 +16,12 @@ namespace BLL
         {
             return dalSP.GetSanPham();
         }
+        public Decimal LayGiaSP(int MaSP)
+        {
+            return (Decimal)dalSP.GetSanPham().AsEnumerable()
+                .Where(row => row.Field<int>("MaSP") == MaSP)
+                .Select(row => row.Field<Decimal>("Gia"))
+                .FirstOrDefault();
+        }
     }
 }

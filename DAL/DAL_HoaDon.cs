@@ -18,17 +18,10 @@ namespace DAL
         {
             return daHoaDon.GetData();
         }
-        public bool Them(DTO_HoaDon hd)
+        public int Them(DTO_HoaDon hd)
         {
-            try
-            {
-                daHoaDon.Insert(hd.MaKH, hd.MaNV, hd.NgayLap, hd.TongTien);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            int MaHD = (int)daHoaDon.InsertHoaDon_GetMaHD(hd.MaKH, hd.MaNV, hd.NgayLap, hd.TongTien);
+            return MaHD;
         }
         public int KTKhoaChinh(int MaHD)
         {
